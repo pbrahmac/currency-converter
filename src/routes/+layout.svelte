@@ -20,6 +20,10 @@
 
 <svelte:head>
   <meta name="theme-color" content={$mode === "dark" ? "#0a0a0a" : "#ffffff"} />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1"
+  />
 </svelte:head>
 
 <ModeWatcher />
