@@ -23,7 +23,11 @@
           Convert {convertFrom} to {convertTo}
         </Card.Description>
       </div>
-      <Button variant="ghost" size="icon">
+      <Button
+        variant="ghost"
+        size="icon"
+        onclick={() => ([convertFrom, convertTo] = [convertTo, convertFrom])}
+      >
         <Swap class="size-10" />
       </Button>
     </div>
