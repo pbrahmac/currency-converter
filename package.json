@@ -14,7 +14,7 @@
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"autoprefixer": "^10.4.20",
-		"bits-ui": "^1.0.0-next.60",
+		"bits-ui": "^1.0.0-next.62",
 		"clsx": "^2.1.1",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
@@ -24,10 +24,12 @@
 		"tailwindcss-animate": "^1.0.7",
 		"tailwindcss-safe-area": "^0.6.0",
 		"typescript": "^5.0.0",
+		"vaul-svelte": "^1.0.0-next.3",
 		"vite": "^5.0.3"
 	},
 	"dependencies": {
 		"lucide-svelte": "^0.460.1",
-		"mode-watcher": "^0.5.0"
+		"mode-watcher": "^0.5.0",
+		"runed": "^0.15.3"
 	}
 }

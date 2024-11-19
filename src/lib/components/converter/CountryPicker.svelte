@@ -1,0 +1,129 @@
+<script lang="ts">
+  import { MediaQuery } from "runed";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import * as Drawer from "$lib/components/ui/drawer/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
+  import Countries from "$lib/util/countries.json";
+  import { ScrollArea } from "$lib/components/ui/scroll-area/index";
+  import { cn, getEmoji } from "$lib/utils";
+  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import Check from "lucide-svelte/icons/check";
+
+  // types
+  type Country = keyof typeof Countries;
+
+  // props
+  let { direction, currCode }: { direction: "from" | "to"; currCode: Country } =
+    $props();
+
+  // media query
+  const isDesktop = new MediaQuery("(min-width: 768px)");
+
+  // state variables
+  let open = $state(false);
+
+  // full and filtered countries lists
+  let countriesList = Object.entries(Countries).map((country) => ({
+    emoji: country[1],
+    code: country[0] as Country,
+  }));
+  let filteredCountriesList = $state(countriesList);
+
+  function handleSelect(code: Country) {
+    currCode = code;
+    open = false;
+  }
+
+  let searchValue = $state("");
+
+  function handleSearch() {
+    console.log("input changed!");
+    filteredCountriesList = countriesList.filter((country) =>
+      `${country.emoji} ${country.code.toLowerCase()}`.includes(
+        searchValue.toLowerCase()
+      )
+    );
+  }
+</script>
+
+{#if isDesktop.matches}
+  <Dialog.Root bind:open>
+    <Dialog.Trigger class={cn(buttonVariants({ variant: "outline" }), "pr-3")}>
+      <div class="flex items-center justify-between space-x-4 w-full">
+        <p>{getEmoji(currCode)} {currCode}</p>
+        <ChevronsUpDown />
+      </div>
+    </Dialog.Trigger>
+    <Dialog.Content class="sm:max-w-[425px]">
+      <Dialog.Header>
+        <Dialog.Title>Convert {direction} Currency</Dialog.Title>
+        <Dialog.Description>
+          Select the currency code associated with your currency.
+        </Dialog.Description>
+      </Dialog.Header>
+      <Input bind:value={searchValue} oninput={() => handleSearch()} />
+      <ul class="w-full">
+        <ScrollArea class="sm:h-96 h-[77svh] w-full">
+          <div class="rounded-md border w-full">
+            {#each filteredCountriesList as country}
+              <button
+                class="flex w-full hover:bg-secondary items-center justify-between py-3 px-4 border-b last:border-b-0"
+                onclick={() => handleSelect(country.code)}
+              >
+                <li>
+                  {country.emoji}
+                  {country.code}
+                </li>
+                {#if country.code === currCode}
+                  <Check />
+                {/if}
+              </button>
+            {/each}
+          </div>
+        </ScrollArea>
+      </ul>
+    </Dialog.Content>
+  </Dialog.Root>
+{:else}
+  <Drawer.Root closeThreshold={0.9} bind:open>
+    <Drawer.Trigger class={cn(buttonVariants({ variant: "outline" }), "pr-3")}>
+      <div class="flex items-center justify-between space-x-4 w-full">
+        <p>{getEmoji(currCode)} {currCode}</p>
+        <ChevronsUpDown />
+      </div>
+    </Drawer.Trigger>
+    <Drawer.Content class="outline-none p-4 h-[65svh]">
+      <Drawer.Header class="text-left">
+        <Drawer.Title>Convert {direction} Currency</Drawer.Title>
+        <Drawer.Description>
+          Select the currency code associated with your currency.
+        </Drawer.Description>
+      </Drawer.Header>
+      <Input
+        autofocus={false}
+        bind:value={searchValue}
+        oninput={() => handleSearch()}
+      />
+      <ul class="w-full mt-4">
+        <ScrollArea class="sm:h-96 h-[40svh] rounded-md border w-full">
+          {#each filteredCountriesList as country}
+            <button
+              class="flex w-full hover:bg-secondary items-center justify-between py-3 px-4 border-b last:border-b-0"
+              onclick={() => handleSelect(country.code)}
+            >
+              <li>
+                {country.emoji}
+                {country.code}
+              </li>
+              {#if country.code === currCode}
+                <Check />
+              {/if}
+            </button>
+          {/each}
+        </ScrollArea>
+      </ul>
+    </Drawer.Content>
+  </Drawer.Root>
+{/if}
