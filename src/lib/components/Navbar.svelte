@@ -27,3 +27,9 @@
     </ul>
   </div>
 </nav>
+
+<style>
+  nav {
+    view-transition-name: navbar;
+  }
+</style>
