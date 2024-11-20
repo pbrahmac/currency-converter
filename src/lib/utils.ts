@@ -12,6 +12,18 @@ export type CurrencyRateData = {
   date: string;
   inverseRate: number;
 };
+export type ConvertObj = {
+  from: {
+    currency: Country;
+    amount: string;
+    conversionRate: number;
+  };
+  to: {
+    currency: Country;
+    amount: string;
+    conversionRate: number;
+  };
+};
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

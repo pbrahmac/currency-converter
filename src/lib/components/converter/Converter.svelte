@@ -9,6 +9,7 @@
     fetchConversionData,
     formatConversion,
     isZeroValue,
+    type ConvertObj,
     type Country,
   } from "$lib/utils";
   import Swap from "lucide-svelte/icons/arrow-left-right";
@@ -16,22 +17,7 @@
   import { onMount } from "svelte";
   import CountryPicker from "./CountryPicker.svelte";
 
-  // types
-  type ConvertObj = {
-    from: {
-      currency: Country;
-      amount: string;
-      conversionRate: number;
-    };
-    to: {
-      currency: Country;
-      amount: string;
-      conversionRate: number;
-    };
-  };
-
   let loading = $state(true);
-  $inspect(loading);
 
   let convert: ConvertObj = $state({
     from: {
@@ -155,7 +141,7 @@
             {convert.to.currency}
           </p>
           <p class="text-xs text-muted-foreground">
-            Updated 11/19/2024, 2:59:12 AM
+            Updated 11/19/2024, 7:41:51 PM
           </p>
         {/if}
       </div>
