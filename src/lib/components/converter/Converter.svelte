@@ -15,7 +15,6 @@
   } from "$lib/utils";
   import Swap from "lucide-svelte/icons/arrow-left-right";
   import Coins from "lucide-svelte/icons/coins";
-  import { onMount } from "svelte";
   import CountryPicker from "./CountryPicker.svelte";
 
   // loading state for data fetching
@@ -79,15 +78,18 @@
   let rates: Record<string, CurrencyRateData> = $state({});
   // will run when `convert.from.currency` is updated
   $effect(() => {
-    convert.from.currency;
-    return async () => {
-      rates = await fetchConversionData(convert.from.currency);
+    // convert.from.currency;
+    loading = true;
+    fetchConversionData(convert.from.currency).then((refreshedRates) => {
+      rates = refreshedRates;
       const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
       convert.from.conversionRate = firstToSecondRate.rate;
       convert.to.conversionRate = firstToSecondRate.inverseRate;
       convert.from.refreshDate = new Date(firstToSecondRate.date);
       convert.to.fullName = firstToSecondRate.name;
-    };
+      loading = false;
+      console.log("Ran async effect!");
+    });
   });
   // will run when `convert.to.currency` is updated, this is so we reduce the number of calls to the API
   $effect(() => {
@@ -98,20 +100,8 @@
       convert.to.conversionRate =
         firstToSecondRate && firstToSecondRate.inverseRate;
       convert.to.fullName = firstToSecondRate && firstToSecondRate.name;
+      console.log("Ran second effect!");
     };
-  });
-  // fetch initial data on component mount
-  onMount(async () => {
-    // fetch conversion data from API and populate object with actual rates
-    rates = await fetchConversionData(convert.from.currency);
-    const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
-    convert.from.conversionRate = firstToSecondRate.rate;
-    convert.to.conversionRate = firstToSecondRate.inverseRate;
-    convert.from.refreshDate = new Date(firstToSecondRate.date);
-    convert.to.fullName = firstToSecondRate.name;
-
-    // set loading state to false
-    loading = false;
   });
 </script>
 
