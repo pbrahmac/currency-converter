@@ -15,7 +15,6 @@
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
   import { MediaQuery } from "runed";
-  import { onMount } from "svelte";
   import Skeleton from "../ui/skeleton/skeleton.svelte";
 
   // types

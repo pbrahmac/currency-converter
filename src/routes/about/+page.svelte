@@ -49,7 +49,7 @@
     <div class="flex flex-col">
       <h3 class="font-medium">Default Conversion</h3>
       <p class="text-muted-foreground text-sm mb-3">
-        Pick what currencies to convert from and to by default.
+        Pick which currencies to convert from and to by default.
       </p>
       <div class="flex items-center space-x-4">
         <CountryPicker

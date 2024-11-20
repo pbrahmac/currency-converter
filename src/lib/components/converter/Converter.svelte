@@ -16,8 +16,8 @@
   } from "$lib/utils";
   import Swap from "lucide-svelte/icons/arrow-left-right";
   import Coins from "lucide-svelte/icons/coins";
-  import CountryPicker from "./CountryPicker.svelte";
   import { onMount } from "svelte";
+  import CountryPicker from "./CountryPicker.svelte";
 
   // loading state for data fetching
   let loading = $state(true);
