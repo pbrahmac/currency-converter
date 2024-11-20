@@ -8,30 +8,36 @@
   import {
     fetchConversionData,
     formatConversion,
+    formatRate,
     isZeroValue,
     type ConvertObj,
-    type Country,
+    type CurrencyRateData,
   } from "$lib/utils";
   import Swap from "lucide-svelte/icons/arrow-left-right";
   import Coins from "lucide-svelte/icons/coins";
   import { onMount } from "svelte";
   import CountryPicker from "./CountryPicker.svelte";
 
+  // loading state for data fetching
   let loading = $state(true);
 
+  // object to hold conversion data
   let convert: ConvertObj = $state({
     from: {
       currency: "USD",
       amount: "0",
       conversionRate: 3,
+      refreshDate: new Date(),
     },
     to: {
       currency: "THB",
       amount: "0",
       conversionRate: 1 / 3,
+      refreshDate: new Date(),
     },
   });
 
+  // functions to handle conversion (on input change)
   function convertFromFirstToSecond(value: string) {
     if (isZeroValue(value)) {
       convert.from.amount = value[1];
@@ -64,16 +70,41 @@
     }
   }
 
-  function handleSwap() {
-    [convert.from, convert.to] = [convert.to, convert.from];
-  }
-
+  /*
+   * lifecycle hooks and effects to fetch new data from API when needed
+   * and update conversion data object accordingly
+   */
+  let rates: Record<string, CurrencyRateData> = $state({});
+  // will run when `convert.from.currency` is updated
+  $effect(() => {
+    convert.from.currency;
+    return async () => {
+      rates = await fetchConversionData(convert.from.currency);
+      const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
+      convert.from.conversionRate = firstToSecondRate.rate;
+      convert.to.conversionRate = firstToSecondRate.inverseRate;
+      convert.from.refreshDate = new Date(firstToSecondRate.date);
+    };
+  });
+  // will run when `convert.to.currency` is updated, this is so we reduce the number of calls to the API
+  $effect(() => {
+    convert.to.currency;
+    return () => {
+      const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
+      convert.from.conversionRate = firstToSecondRate && firstToSecondRate.rate;
+      convert.to.conversionRate =
+        firstToSecondRate && firstToSecondRate.inverseRate;
+    };
+  });
+  // fetch initial data on component mount
   onMount(async () => {
     // fetch conversion data from API and populate object with actual rates
-    const rates = await fetchConversionData(convert.from.currency);
+    rates = await fetchConversionData(convert.from.currency);
     const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
     convert.from.conversionRate = firstToSecondRate.rate;
     convert.to.conversionRate = firstToSecondRate.inverseRate;
+    convert.from.refreshDate = new Date(firstToSecondRate.date);
+    convert.to.refreshDate = new Date(firstToSecondRate.date);
 
     // set loading state to false
     loading = false;
@@ -89,7 +120,12 @@
           Convert {convert.from.currency} to {convert.to.currency}
         </Card.Description>
       </div>
-      <Button variant="ghost" size="icon" onclick={handleSwap}>
+      <Button
+        variant="ghost"
+        size="icon"
+        onclick={() =>
+          ([convert.from, convert.to] = [convert.to, convert.from])}
+      >
         <Swap class="size-10" />
       </Button>
     </div>
@@ -97,24 +133,26 @@
   <Card.Content class="flex items-center justify-center w-full space-x-4">
     <div class="flex flex-col justify-center space-y-2">
       <Label for="convertFrom">
-        <CountryPicker currCode={convert.from.currency} direction="from" />
+        <CountryPicker bind:currCode={convert.from.currency} direction="from" />
       </Label>
       <Input
         bind:value={convert.from.amount}
         name="convertFrom"
         type="number"
+        inputmode="decimal"
         pattern="[0-9]+"
         oninput={(e) => convertFromFirstToSecond(e.currentTarget.value)}
       />
     </div>
     <div class="flex flex-col justify-center space-y-2">
       <Label for="convertTo">
-        <CountryPicker currCode={convert.to.currency} direction="to" />
+        <CountryPicker bind:currCode={convert.to.currency} direction="to" />
       </Label>
       <Input
         bind:value={convert.to.amount}
         name="convertTo"
         type="number"
+        inputmode="decimal"
         pattern="[0-9]+"
         oninput={(e) => convertFromSecondToFirst(e.currentTarget.value)}
       />
@@ -124,8 +162,9 @@
     <Button
       class="w-full"
       onclick={() => ([convert.from.amount, convert.to.amount] = ["0", "0"])}
-      >Clear</Button
     >
+      Clear
+    </Button>
     <Separator />
     <div
       class="w-full border flex items-center justify-start space-x-4 px-3 py-2 rounded-md"
@@ -137,11 +176,12 @@
           <Skeleton class="w-full h-3" />
         {:else}
           <p class="text-sm">
-            1 {convert.from.currency} = {convert.from.conversionRate.toFixed(4)}
+            1 {convert.from.currency} = {convert.from.conversionRate &&
+              formatRate(convert.from.conversionRate)}
             {convert.to.currency}
           </p>
           <p class="text-xs text-muted-foreground">
-            Updated 11/19/2024, 7:41:51 PM
+            Updated {convert.from.refreshDate.toUTCString()}
           </p>
         {/if}
       </div>

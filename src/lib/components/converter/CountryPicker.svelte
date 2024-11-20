@@ -11,8 +11,10 @@
   import { MediaQuery } from "runed";
 
   // props
-  let { direction, currCode }: { direction: "from" | "to"; currCode: Country } =
-    $props();
+  let {
+    direction,
+    currCode = $bindable(),
+  }: { direction: "from" | "to"; currCode: Country } = $props();
 
   // media query
   const isDesktop = new MediaQuery("(min-width: 768px)");
@@ -35,7 +37,6 @@
   let searchValue = $state("");
 
   function handleSearch() {
-    console.log("input changed!");
     filteredCountriesList = countriesList.filter((country) =>
       `${country.emoji} ${country.code.toLowerCase()}`.includes(
         searchValue.toLowerCase()

@@ -17,11 +17,13 @@ export type ConvertObj = {
     currency: Country;
     amount: string;
     conversionRate: number;
+    refreshDate: Date;
   };
   to: {
     currency: Country;
     amount: string;
     conversionRate: number;
+    refreshDate: Date;
   };
 };
 
@@ -58,4 +60,8 @@ export function isZeroValue(value: string) {
 
 export function formatConversion(conversion: number): string {
   return conversion === 0 ? "0" : conversion.toFixed(2);
+}
+
+export function formatRate(rate: number): string {
+  return rate < 0.0001 ? rate.toFixed(6) : rate.toFixed(4);
 }
