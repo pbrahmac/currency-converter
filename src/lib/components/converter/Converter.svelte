@@ -4,48 +4,94 @@
   import { Input } from "$lib/components/ui/input/index";
   import { Label } from "$lib/components/ui/label/index";
   import { Separator } from "$lib/components/ui/separator/index";
-  import type { Country } from "$lib/utils";
+  import { Skeleton } from "$lib/components/ui/skeleton/index";
+  import {
+    fetchConversionData,
+    formatConversion,
+    isZeroValue,
+    type Country,
+  } from "$lib/utils";
   import Swap from "lucide-svelte/icons/arrow-left-right";
   import Coins from "lucide-svelte/icons/coins";
+  import { onMount } from "svelte";
   import CountryPicker from "./CountryPicker.svelte";
 
-  let convertFromCurrency: Country = $state("USD");
-  let convertToCurrency: Country = $state("THB");
+  // types
+  type ConvertObj = {
+    from: {
+      currency: Country;
+      amount: string;
+      conversionRate: number;
+    };
+    to: {
+      currency: Country;
+      amount: string;
+      conversionRate: number;
+    };
+  };
 
-  let convertFromAmount: string = $state("0");
-  let convertToAmount: string = $state("0");
+  let loading = $state(true);
+  $inspect(loading);
 
-  function fakeConvertSecondFromFirst(value: string) {
-    const conversionRate: number = 3;
+  let convert: ConvertObj = $state({
+    from: {
+      currency: "USD",
+      amount: "0",
+      conversionRate: 3,
+    },
+    to: {
+      currency: "THB",
+      amount: "0",
+      conversionRate: 1 / 3,
+    },
+  });
 
-    const first = parseFloat(value);
-    const convertedSecond = first * conversionRate;
-    convertToAmount = convertedSecond === 0 ? "0" : convertedSecond.toFixed(2);
-    return convertToAmount;
+  function convertFromFirstToSecond(value: string) {
+    if (isZeroValue(value)) {
+      convert.from.amount = value[1];
+    } else {
+      convert.from.amount = value;
+    }
+
+    const original = parseFloat(value);
+    const converted = original * convert.from.conversionRate;
+    convert.to.amount = formatConversion(converted);
+
+    if (!value) {
+      [convert.from.amount, convert.to.amount] = ["0", "0"];
+    }
   }
 
-  function fakeConvertFirstFromSecond(value: string) {
-    const conversionRate: number = 1 / 3;
+  function convertFromSecondToFirst(value: string) {
+    if (isZeroValue(value)) {
+      convert.to.amount = value[1];
+    } else {
+      convert.to.amount = value;
+    }
 
-    const second = parseFloat(value);
-    const convertedFirst = second * conversionRate;
-    convertFromAmount = convertedFirst === 0 ? "0" : convertedFirst.toFixed(2);
-    return convertFromAmount;
-  }
+    const original = parseFloat(value);
+    const converted = original * convert.to.conversionRate;
+    convert.from.amount = formatConversion(converted);
 
-  function staticConvertFirstFromFirst(value: number) {
-    const conversionRate = 3;
-    const convertedSecond = value * conversionRate;
-    return convertedSecond;
+    if (!value) {
+      [convert.from.amount, convert.to.amount] = ["0", "0"];
+    }
   }
 
   function handleSwap() {
-    [convertFromCurrency, convertToCurrency] = [
-      convertToCurrency,
-      convertFromCurrency,
-    ];
-    [convertFromAmount, convertToAmount] = [convertToAmount, convertFromAmount];
+    [convert.from, convert.to] = [convert.to, convert.from];
   }
+
+  onMount(async () => {
+    // fetch conversion data from API and populate object with actual rates
+    const rates = await fetchConversionData(convert.from.currency);
+    const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
+    convert.from.conversionRate = firstToSecondRate.rate;
+    convert.to.conversionRate = firstToSecondRate.inverseRate;
+
+    // set loading state to false
+    loading = false;
+  });
 </script>
 
 <Card.Root class="md:w-[400px] w-full">
@@ -54,7 +100,7 @@
       <div class="flex flex-col space-y-1 justify-center w-auto">
         <Card.Title>Currency Converter</Card.Title>
         <Card.Description class="text-xs">
-          Convert {convertFromCurrency} to {convertToCurrency}
+          Convert {convert.from.currency} to {convert.to.currency}
         </Card.Description>
       </div>
       <Button variant="ghost" size="icon" onclick={handleSwap}>
@@ -65,44 +111,53 @@
   <Card.Content class="flex items-center justify-center w-full space-x-4">
     <div class="flex flex-col justify-center space-y-2">
       <Label for="convertFrom">
-        <CountryPicker currCode={convertFromCurrency} direction="from" />
+        <CountryPicker currCode={convert.from.currency} direction="from" />
       </Label>
       <Input
-        bind:value={convertFromAmount}
+        bind:value={convert.from.amount}
         name="convertFrom"
         type="number"
-        pattern="[0-9]*"
-        oninput={(e) => fakeConvertSecondFromFirst(e.currentTarget.value)}
+        pattern="[0-9]+"
+        oninput={(e) => convertFromFirstToSecond(e.currentTarget.value)}
       />
     </div>
     <div class="flex flex-col justify-center space-y-2">
       <Label for="convertTo">
-        <CountryPicker currCode={convertToCurrency} direction="to" />
+        <CountryPicker currCode={convert.to.currency} direction="to" />
       </Label>
       <Input
-        bind:value={convertToAmount}
+        bind:value={convert.to.amount}
         name="convertTo"
         type="number"
-        pattern="[0-9]*"
-        oninput={(e) => fakeConvertFirstFromSecond(e.currentTarget.value)}
+        pattern="[0-9]+"
+        oninput={(e) => convertFromSecondToFirst(e.currentTarget.value)}
       />
     </div>
   </Card.Content>
   <Card.Footer class="flex flex-col space-y-2">
-    <Button class="w-full">Clear</Button>
+    <Button
+      class="w-full"
+      onclick={() => ([convert.from.amount, convert.to.amount] = ["0", "0"])}
+      >Clear</Button
+    >
     <Separator />
     <div
       class="w-full border flex items-center justify-start space-x-4 px-3 py-2 rounded-md"
     >
       <Coins class="size-6 mx-2" />
-      <div class="flex flex-col justify-center">
-        <p class="text-sm">
-          1 {convertFromCurrency} = {staticConvertFirstFromFirst(1).toFixed(4)}
-          {convertToCurrency}
-        </p>
-        <p class="text-xs text-muted-foreground">
-          Updated 11/19/2024, 2:59:12 AM
-        </p>
+      <div class="flex flex-col justify-center w-full">
+        {#if loading}
+          <Skeleton class="w-3/4 h-4 mb-1" />
+          <Skeleton class="w-full h-3" />
+        {:else}
+          <p class="text-sm">
+            1 {convert.from.currency} = {convert.from.conversionRate.toFixed(4)}
+            {convert.to.currency}
+          </p>
+          <p class="text-xs text-muted-foreground">
+            Updated 11/19/2024, 2:59:12 AM
+          </p>
+        {/if}
       </div>
     </div>
   </Card.Footer>
