@@ -2,8 +2,8 @@
   import { page } from "$app/stores";
   import { Button } from "$lib/components/ui/button/index";
   import { cn } from "$lib/utils";
-  import BankNote from "lucide-svelte/icons/banknote";
   import CircleHelp from "lucide-svelte/icons/circle-help";
+  import AnimatedHandCoins from "./AnimatedHandCoins.svelte";
 
   let isAboutPage = $derived($page.url.pathname === "/about");
 </script>
@@ -13,7 +13,7 @@
 >
   <div class="flex items-center w-full max-w-screen-md justify-between px-4">
     <a href="/" class="flex items-center space-x-2">
-      <BankNote class="size-7" />
+      <AnimatedHandCoins classes="size-7" />
       <span class="font-semibold text-lg">Quid</span>
     </a>
     <ul class="flex space-x-2">

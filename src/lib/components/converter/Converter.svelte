@@ -88,7 +88,6 @@
       convert.from.refreshDate = new Date(firstToSecondRate.date);
       convert.to.fullName = firstToSecondRate.name;
       loading = false;
-      console.log("Ran async effect!");
     });
   });
   // will run when `convert.to.currency` is updated, this is so we reduce the number of calls to the API
@@ -100,7 +99,6 @@
       convert.to.conversionRate =
         firstToSecondRate && firstToSecondRate.inverseRate;
       convert.to.fullName = firstToSecondRate && firstToSecondRate.name;
-      console.log("Ran second effect!");
     };
   });
 </script>
