@@ -42,6 +42,16 @@ export function getEmoji(country: string) {
   return countryEmojis[country.toUpperCase() as keyof typeof countryEmojis];
 }
 
+export function formatCountryName(name: string): string {
+  return name
+    .trim()
+    .split(" ")
+    .map((word) =>
+      word === "and" ? word : word.at(0)?.toUpperCase() + word.slice(1)
+    )
+    .join(" ");
+}
+
 /**
  * Fetches conversion data between one currency and all of the others.
  * @param countryCode code of the currency to fetch conversion data for.

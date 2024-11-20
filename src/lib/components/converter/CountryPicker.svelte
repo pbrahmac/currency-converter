@@ -5,10 +5,25 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index";
   import Countries from "$lib/util/countries.json";
-  import { cn, getEmoji, type Country } from "$lib/utils";
+  import {
+    cn,
+    fetchConversionData,
+    formatCountryName,
+    getEmoji,
+    type Country,
+  } from "$lib/utils";
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
   import { MediaQuery } from "runed";
+  import { onMount } from "svelte";
+  import Skeleton from "../ui/skeleton/skeleton.svelte";
+
+  // types
+  type CountriesList = {
+    emoji: string;
+    code: Country;
+    name: string | undefined;
+  }[];
 
   // props
   let {
@@ -26,30 +41,67 @@
 
   // state variables
   let open = $state(false);
+  let loading = $state(true);
 
   // full and filtered countries lists
-  let countriesList = Object.entries(Countries)
-    .filter((country) => (direction === "to" ? country[0] !== fromCode : true))
-    .map((country) => ({
-      emoji: country[1],
-      code: country[0] as Country,
-    }));
+  let countriesList: CountriesList = $state(
+    Object.entries(Countries)
+      .filter((country) =>
+        direction === "to" ? country[0] !== fromCode : true
+      )
+      .map((country) => ({
+        emoji: country[1],
+        code: country[0] as Country,
+        name: undefined,
+      }))
+  );
   let filteredCountriesList = $state(countriesList);
 
+  // search and select handlers
+  let searchValue = $state("");
+  function handleSearch() {
+    filteredCountriesList = countriesList.filter((country) =>
+      Object.values(country)
+        .map((field) => field && field.toLowerCase())
+        .join(" ")
+        .includes(searchValue.toLowerCase())
+    );
+  }
   function handleSelect(code: Country) {
     currCode = code;
     open = false;
   }
 
-  let searchValue = $state("");
-
-  function handleSearch() {
-    filteredCountriesList = countriesList.filter((country) =>
-      `${country.emoji} ${country.code.toLowerCase()}`.includes(
-        searchValue.toLowerCase()
-      )
-    );
-  }
+  // on component mount, fetch full country names for search
+  $effect(() => {
+    // fetch rates data
+    fetchConversionData("USD").then((refreshedRates) => {
+      // filter out invalid countries in-place
+      countriesList.splice(
+        0,
+        countriesList.length,
+        ...countriesList.filter(
+          (country) => refreshedRates[country.code.toLowerCase()] !== undefined
+        )
+      );
+      // add formatted name fields to each valid country
+      countriesList.forEach((country) => {
+        if (country.code === "USD") {
+          country.name = "U.S. Dollar";
+          return;
+        }
+        if (refreshedRates[country.code.toLowerCase()] === undefined) {
+          console.log(country.code);
+          countriesList.findIndex(
+            (undefCountry) => undefCountry.code === country.code
+          );
+        }
+        const name = refreshedRates[country.code.toLowerCase()].name;
+        country.name = formatCountryName(name);
+      });
+    });
+    loading = false;
+  });
 </script>
 
 {#if isDesktop.matches}
@@ -76,9 +128,20 @@
                 class="flex w-full hover:bg-secondary items-center justify-between py-3 px-4 border-b last:border-b-0"
                 onclick={() => handleSelect(country.code)}
               >
-                <li>
-                  {country.emoji}
-                  {country.code}
+                <li class="w-full">
+                  <div class="flex items-baseline space-x-2">
+                    <p>{country.emoji}</p>
+                    <p>{country.code}</p>
+                    {#if country.name === undefined}
+                      <Skeleton class="w-1/2 h-3" />
+                    {:else}
+                      <span
+                        class="text-muted-foreground text-sm text-nowrap max-w-64 text-ellipsis overflow-hidden"
+                      >
+                        ({country.name})
+                      </span>
+                    {/if}
+                  </div>
                 </li>
                 {#if country.code === currCode}
                   <Check />
@@ -117,9 +180,20 @@
               class="flex w-full hover:bg-secondary items-center justify-between py-3 px-4 border-b last:border-b-0"
               onclick={() => handleSelect(country.code)}
             >
-              <li>
-                {country.emoji}
-                {country.code}
+              <li class="w-full">
+                <div class="flex items-baseline space-x-2">
+                  <p>{country.emoji}</p>
+                  <p>{country.code}</p>
+                  {#if country.name === undefined}
+                    <Skeleton class="w-1/2 h-3" />
+                  {:else}
+                    <span
+                      class="text-muted-foreground text-sm text-nowrap max-w-64 text-ellipsis overflow-hidden"
+                    >
+                      ({country.name})
+                    </span>
+                  {/if}
+                </div>
               </li>
               {#if country.code === currCode}
                 <Check />
