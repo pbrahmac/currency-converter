@@ -1,11 +1,35 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
+  import CountryPicker from "$lib/components/converter/CountryPicker.svelte";
   import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import * as Avatar from "$lib/components/ui/avatar/index";
   import { buttonVariants } from "$lib/components/ui/button/index";
   import { Separator } from "$lib/components/ui/separator/index.js";
-  import { cn } from "$lib/utils";
+  import { cn, loadFromLocalStorage, type Country } from "$lib/utils";
   import GitHubLogo from "lucide-svelte/icons/github";
   import LinkedInLogo from "lucide-svelte/icons/linkedin";
+  import ArrowRight from "lucide-svelte/icons/move-right";
+  import { onMount } from "svelte";
+
+  let defaultConvertFrom: Country = $state("USD");
+  let defaultConvertTo: Country = $state("THB");
+
+  onMount(() => {
+    [defaultConvertFrom, defaultConvertTo] = loadFromLocalStorage(
+      defaultConvertFrom,
+      defaultConvertTo
+    );
+  });
+
+  $effect(() => {
+    defaultConvertFrom;
+    defaultConvertTo;
+
+    return () => {
+      window.localStorage.setItem("defaultConvertFrom", defaultConvertFrom);
+      window.localStorage.setItem("defaultConvertTo", defaultConvertTo);
+    };
+  });
 </script>
 
 <svelte:head>
@@ -14,13 +38,32 @@
 
 <div class="p-4 mt-20 flex flex-col items-center text-foreground/90">
   <div class="w-full max-w-screen-md p-4 flex flex-col space-y-8">
+    <h1 class="font-semibold tracking-wide text-xl -mb-2">Settings</h1>
     <div class="flex flex-col">
-      <h1 class="font-semibold tracking-wide text-xl mb-4">Settings</h1>
       <h3 class="font-medium">Theme Preference</h3>
       <p class="text-muted-foreground text-sm mb-3">
         Switch between light and dark mode, or follow the system preference.
       </p>
       <ThemeToggle />
+    </div>
+    <div class="flex flex-col">
+      <h3 class="font-medium">Default Conversion</h3>
+      <p class="text-muted-foreground text-sm mb-3">
+        Pick what currencies to convert from and to by default.
+      </p>
+      <div class="flex items-center space-x-4">
+        <CountryPicker
+          direction="from"
+          bind:currCode={defaultConvertFrom}
+          fromCode={defaultConvertFrom}
+        />
+        <ArrowRight />
+        <CountryPicker
+          direction="to"
+          bind:currCode={defaultConvertTo}
+          fromCode={defaultConvertFrom}
+        />
+      </div>
     </div>
     <Separator />
     <div class="flex flex-col space-y-4">

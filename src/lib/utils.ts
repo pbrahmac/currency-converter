@@ -67,3 +67,22 @@ export function formatConversion(conversion: number): string {
 export function formatRate(rate: number): string {
   return rate < 0.0001 ? rate.toFixed(6) : rate.toFixed(4);
 }
+
+// load values from localStorage if any
+export function loadFromLocalStorage(
+  fallbackFrom: Country,
+  fallbackTo: Country
+): [Country, Country] {
+  let localStorageFrom = window.localStorage.getItem("defaultConvertFrom");
+  let localStorageTo = window.localStorage.getItem("defaultConvertTo");
+
+  if (localStorageFrom === undefined || localStorageFrom === null) {
+    localStorageFrom = fallbackFrom;
+  }
+
+  if (localStorageTo === undefined || localStorageTo === null) {
+    localStorageTo = fallbackTo;
+  }
+
+  return [localStorageFrom as Country, localStorageTo as Country];
+}

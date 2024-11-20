@@ -10,12 +10,14 @@
     formatConversion,
     formatRate,
     isZeroValue,
+    loadFromLocalStorage,
     type ConvertObj,
     type CurrencyRateData,
   } from "$lib/utils";
   import Swap from "lucide-svelte/icons/arrow-left-right";
   import Coins from "lucide-svelte/icons/coins";
   import CountryPicker from "./CountryPicker.svelte";
+  import { onMount } from "svelte";
 
   // loading state for data fetching
   let loading = $state(true);
@@ -78,7 +80,6 @@
   let rates: Record<string, CurrencyRateData> = $state({});
   // will run when `convert.from.currency` is updated
   $effect(() => {
-    // convert.from.currency;
     loading = true;
     fetchConversionData(convert.from.currency).then((refreshedRates) => {
       rates = refreshedRates;
@@ -100,6 +101,13 @@
         firstToSecondRate && firstToSecondRate.inverseRate;
       convert.to.fullName = firstToSecondRate && firstToSecondRate.name;
     };
+  });
+  // load from localStorage on component mount
+  onMount(() => {
+    [convert.from.currency, convert.to.currency] = loadFromLocalStorage(
+      convert.from.currency,
+      convert.to.currency
+    );
   });
 </script>
 
