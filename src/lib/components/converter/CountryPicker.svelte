@@ -14,7 +14,12 @@
   let {
     direction,
     currCode = $bindable(),
-  }: { direction: "from" | "to"; currCode: Country } = $props();
+    fromCode,
+  }: {
+    direction: "from" | "to";
+    currCode: Country;
+    fromCode: Country;
+  } = $props();
 
   // media query
   const isDesktop = new MediaQuery("(min-width: 768px)");
@@ -23,10 +28,12 @@
   let open = $state(false);
 
   // full and filtered countries lists
-  let countriesList = Object.entries(Countries).map((country) => ({
-    emoji: country[1],
-    code: country[0] as Country,
-  }));
+  let countriesList = Object.entries(Countries)
+    .filter((country) => (direction === "to" ? country[0] !== fromCode : true))
+    .map((country) => ({
+      emoji: country[1],
+      code: country[0] as Country,
+    }));
   let filteredCountriesList = $state(countriesList);
 
   function handleSelect(code: Country) {

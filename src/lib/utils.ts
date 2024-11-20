@@ -15,15 +15,17 @@ export type CurrencyRateData = {
 export type ConvertObj = {
   from: {
     currency: Country;
+    fullName: string;
     amount: string;
     conversionRate: number;
-    refreshDate: Date;
+    refreshDate: Date | null;
   };
   to: {
     currency: Country;
+    fullName: string;
     amount: string;
     conversionRate: number;
-    refreshDate: Date;
+    refreshDate: Date | null;
   };
 };
 

@@ -25,15 +25,17 @@
   let convert: ConvertObj = $state({
     from: {
       currency: "USD",
+      fullName: "U.S. Dollar",
       amount: "0",
       conversionRate: 3,
-      refreshDate: new Date(),
+      refreshDate: null,
     },
     to: {
       currency: "THB",
+      fullName: "Thai Baht",
       amount: "0",
       conversionRate: 1 / 3,
-      refreshDate: new Date(),
+      refreshDate: null,
     },
   });
 
@@ -84,6 +86,7 @@
       convert.from.conversionRate = firstToSecondRate.rate;
       convert.to.conversionRate = firstToSecondRate.inverseRate;
       convert.from.refreshDate = new Date(firstToSecondRate.date);
+      convert.to.fullName = firstToSecondRate.name;
     };
   });
   // will run when `convert.to.currency` is updated, this is so we reduce the number of calls to the API
@@ -94,6 +97,7 @@
       convert.from.conversionRate = firstToSecondRate && firstToSecondRate.rate;
       convert.to.conversionRate =
         firstToSecondRate && firstToSecondRate.inverseRate;
+      convert.to.fullName = firstToSecondRate && firstToSecondRate.name;
     };
   });
   // fetch initial data on component mount
@@ -104,7 +108,7 @@
     convert.from.conversionRate = firstToSecondRate.rate;
     convert.to.conversionRate = firstToSecondRate.inverseRate;
     convert.from.refreshDate = new Date(firstToSecondRate.date);
-    convert.to.refreshDate = new Date(firstToSecondRate.date);
+    convert.to.fullName = firstToSecondRate.name;
 
     // set loading state to false
     loading = false;
@@ -117,7 +121,7 @@
       <div class="flex flex-col space-y-1 justify-center w-auto">
         <Card.Title>Currency Converter</Card.Title>
         <Card.Description class="text-xs">
-          Convert {convert.from.currency} to {convert.to.currency}
+          Convert {convert.from.currency} to {convert.to.fullName}
         </Card.Description>
       </div>
       <Button
@@ -133,7 +137,11 @@
   <Card.Content class="flex items-center justify-center w-full space-x-4">
     <div class="flex flex-col justify-center space-y-2">
       <Label for="convertFrom">
-        <CountryPicker bind:currCode={convert.from.currency} direction="from" />
+        <CountryPicker
+          bind:currCode={convert.from.currency}
+          direction="from"
+          fromCode={convert.from.currency}
+        />
       </Label>
       <Input
         bind:value={convert.from.amount}
@@ -146,7 +154,11 @@
     </div>
     <div class="flex flex-col justify-center space-y-2">
       <Label for="convertTo">
-        <CountryPicker bind:currCode={convert.to.currency} direction="to" />
+        <CountryPicker
+          bind:currCode={convert.to.currency}
+          direction="to"
+          fromCode={convert.from.currency}
+        />
       </Label>
       <Input
         bind:value={convert.to.amount}
@@ -181,7 +193,8 @@
             {convert.to.currency}
           </p>
           <p class="text-xs text-muted-foreground">
-            Updated {convert.from.refreshDate.toUTCString()}
+            Updated {convert.from.refreshDate &&
+              convert.from.refreshDate.toLocaleString("en-US")}
           </p>
         {/if}
       </div>
