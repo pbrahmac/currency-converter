@@ -1,18 +1,14 @@
 <script lang="ts">
-  import { MediaQuery } from "runed";
+  import { buttonVariants } from "$lib/components/ui/button/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import * as Drawer from "$lib/components/ui/drawer/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
-  import Countries from "$lib/util/countries.json";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index";
-  import { cn, getEmoji } from "$lib/utils";
-  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import Countries from "$lib/util/countries.json";
+  import { cn, getEmoji, type Country } from "$lib/utils";
   import Check from "lucide-svelte/icons/check";
-
-  // types
-  type Country = keyof typeof Countries;
+  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import { MediaQuery } from "runed";
 
   // props
   let { direction, currCode }: { direction: "from" | "to"; currCode: Country } =

@@ -41,7 +41,7 @@
       </p>
       <p class="font-light">
         This is also my first project using Svelte 5 and my way of trying to
-        learn the new reactivity system.
+        learn the basics of the new reactivity system.
       </p>
     </div>
     <div class="flex flex-wrap gap-y-4 items-center justify-between">
