@@ -21,6 +21,7 @@
 
   // loading state for data fetching
   let loading = $state(true);
+  let offline = $state(false);
 
   // object to hold conversion data
   let convert: ConvertObj = $state({
@@ -81,15 +82,24 @@
   // will run when `convert.from.currency` is updated
   $effect(() => {
     loading = true;
-    fetchConversionData(convert.from.currency).then((refreshedRates) => {
-      rates = refreshedRates;
-      const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
-      convert.from.conversionRate = firstToSecondRate.rate;
-      convert.to.conversionRate = firstToSecondRate.inverseRate;
-      convert.from.refreshDate = new Date(firstToSecondRate.date);
-      convert.to.fullName = firstToSecondRate.name;
-      loading = false;
-    });
+    fetchConversionData(convert.from.currency).then(
+      (refreshedRates) => {
+        rates = refreshedRates;
+        const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
+        convert.from.conversionRate = firstToSecondRate.rate;
+        convert.to.conversionRate = firstToSecondRate.inverseRate;
+        convert.from.refreshDate = new Date(firstToSecondRate.date);
+        convert.to.fullName = firstToSecondRate.name;
+        loading = false;
+      },
+      () => {
+        offline = true;
+        convert.from.conversionRate = 1;
+        convert.to.conversionRate = 1;
+        convert.to.fullName = convert.to.currency;
+        loading = false;
+      }
+    );
   });
   // will run when `convert.to.currency` is updated, this is so we reduce the number of calls to the API
   $effect(() => {
@@ -184,13 +194,21 @@
           <Skeleton class="w-full h-3" />
         {:else}
           <p class="text-sm">
-            1 {convert.from.currency} = {convert.from.conversionRate &&
-              formatRate(convert.from.conversionRate)}
-            {convert.to.currency}
+            {#if offline}
+              Couldn't get the conversion rate.
+            {:else}
+              1 {convert.from.currency} = {convert.from.conversionRate &&
+                formatRate(convert.from.conversionRate)}
+              {convert.to.currency}
+            {/if}
           </p>
           <p class="text-xs text-muted-foreground">
-            Updated {convert.from.refreshDate &&
-              convert.from.refreshDate.toLocaleString("en-US")}
+            {#if offline}
+              Try again when online.
+            {:else}
+              Updated {convert.from.refreshDate &&
+                convert.from.refreshDate.toLocaleString("en-US")}
+            {/if}
           </p>
         {/if}
       </div>

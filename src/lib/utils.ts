@@ -58,11 +58,15 @@ export function formatCountryName(name: string): string {
  * @returns An object containing CurrencyRateData for each currency.
  */
 export async function fetchConversionData(countryCode: Country) {
-  const res = await fetch(
-    `https://www.floatrates.com/daily/${countryCode.toLowerCase()}.json`
-  );
-  const rates: Record<string, CurrencyRateData> = await res.json();
-  return rates;
+  try {
+    const res = await fetch(
+      `https://www.floatrates.com/daily/${countryCode.toLowerCase()}.json`
+    );
+    const rates: Record<string, CurrencyRateData> = await res.json();
+    return rates;
+  } catch (err) {
+    return Promise.reject();
+  }
 }
 
 // conversion utils
