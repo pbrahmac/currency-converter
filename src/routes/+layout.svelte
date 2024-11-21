@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onNavigate } from "$app/navigation";
   import Navbar from "$lib/components/Navbar.svelte";
-  import { ModeWatcher, mode } from "mode-watcher";
-  import "../app.css";
-  import { onMount } from "svelte";
   import { Toaster } from "$lib/components/ui/sonner/index";
+  import { ModeWatcher, mode } from "mode-watcher";
+  import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
+  import "../app.css";
 
   // props
   let { children } = $props();
