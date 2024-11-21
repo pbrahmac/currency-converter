@@ -1,11 +1,16 @@
 <script lang="ts">
   import { onNavigate } from "$app/navigation";
   import Navbar from "$lib/components/Navbar.svelte";
+  import { Toaster } from "$lib/components/ui/sonner/index";
   import { ModeWatcher, mode } from "mode-watcher";
+  import { onMount } from "svelte";
+  import { toast } from "svelte-sonner";
   import "../app.css";
 
+  // props
   let { children } = $props();
 
+  // view transition API
   onNavigate((navigation) => {
     if (!document.startViewTransition) return;
 
@@ -15,6 +20,32 @@
         await navigation.complete;
       });
     });
+  });
+
+  // service worker updates
+  async function detectSWUpdate() {
+    const registration = await navigator.serviceWorker.ready;
+
+    registration.addEventListener("updatefound", () => {
+      const newSW = registration.installing;
+      newSW?.addEventListener("statechange", () => {
+        if (newSW.state === "installed") {
+          toast("Back online.", {
+            action: {
+              label: "Reload",
+              onClick: () => {
+                newSW.postMessage({ type: "SKIP_WAITING" });
+                window.location.reload();
+              },
+            },
+          });
+        }
+      });
+    });
+  }
+
+  onMount(() => {
+    detectSWUpdate();
   });
 </script>
 
@@ -27,6 +58,7 @@
 </svelte:head>
 
 <ModeWatcher />
+<Toaster />
 <Navbar />
 {@render children()}
 

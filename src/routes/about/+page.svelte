@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
   import CountryPicker from "$lib/components/converter/CountryPicker.svelte";
   import ThemeToggle from "$lib/components/ThemeToggle.svelte";
   import * as Avatar from "$lib/components/ui/avatar/index";

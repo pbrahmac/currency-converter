@@ -40,7 +40,6 @@
 
   // state variables
   let open = $state(false);
-  let loading = $state(true);
 
   // full and filtered countries lists
   let countriesList: CountriesList = $state(
@@ -89,17 +88,10 @@
           country.name = "U.S. Dollar";
           return;
         }
-        if (refreshedRates[country.code.toLowerCase()] === undefined) {
-          console.log(country.code);
-          countriesList.findIndex(
-            (undefCountry) => undefCountry.code === country.code
-          );
-        }
         const name = refreshedRates[country.code.toLowerCase()].name;
         country.name = formatCountryName(name);
       });
     });
-    loading = false;
   });
 </script>
 
