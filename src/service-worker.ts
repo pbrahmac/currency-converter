@@ -66,7 +66,6 @@ sw.addEventListener("fetch", (event) => {
       return response;
     } catch (err) {
       // fallback to cache
-      console.log("URL Pathname: ", url.pathname);
       const cachedResponse = await cache.match(event.request);
       if (cachedResponse) {
         return cachedResponse;
