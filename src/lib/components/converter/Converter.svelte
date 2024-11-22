@@ -14,6 +14,7 @@
     type ConvertObj,
     type CurrencyRateData,
   } from "$lib/utils";
+  import NumberFlow from "@number-flow/svelte";
   import Swap from "lucide-svelte/icons/arrow-left-right";
   import Coins from "lucide-svelte/icons/coins";
   import { onMount } from "svelte";
@@ -193,15 +194,23 @@
           <Skeleton class="w-3/4 h-4 mb-1" />
           <Skeleton class="w-full h-3" />
         {:else}
-          <p class="text-sm">
-            {#if offline}
-              Couldn't get the conversion rate.
-            {:else}
-              1 {convert.from.currency} = {convert.from.conversionRate &&
-                formatRate(convert.from.conversionRate)}
-              {convert.to.currency}
-            {/if}
-          </p>
+          {#if offline}
+            <p class="text-sm">Couldn't get the conversion rate.</p>
+          {:else}
+            <p class="text-sm">
+              1 {convert.from.currency} =
+              <NumberFlow
+                value={convert.from.conversionRate &&
+                  parseFloat(formatRate(convert.from.conversionRate))}
+                format={{
+                  style: "currency",
+                  currency: convert.to.currency,
+                  currencyDisplay: "code",
+                }}
+                locales="en-US"
+              />
+            </p>
+          {/if}
           <p class="text-xs text-muted-foreground">
             {#if offline}
               Try again when online.
