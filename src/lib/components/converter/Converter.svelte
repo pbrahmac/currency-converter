@@ -5,12 +5,14 @@
   import { Label } from "$lib/components/ui/label/index";
   import { Separator } from "$lib/components/ui/separator/index";
   import { Skeleton } from "$lib/components/ui/skeleton/index";
+  import * as Tooltip from "$lib/components/ui/tooltip/index";
   import {
     fetchConversionData,
     formatConversion,
     formatRate,
     isZeroValue,
     loadFromLocalStorage,
+    relativeTime,
     type ConvertObj,
     type CurrencyRateData,
   } from "$lib/utils";
@@ -197,26 +199,36 @@
           {#if offline}
             <p class="text-sm">Couldn't get the conversion rate.</p>
           {:else}
-            <p class="text-sm">
-              1 {convert.from.currency} =
+            <div class="text-sm flex items-center space-x-1">
+              <span>
+                1 {convert.from.currency}
+              </span>
+              <span>=</span>
               <NumberFlow
                 value={convert.from.conversionRate &&
                   parseFloat(formatRate(convert.from.conversionRate))}
-                format={{
-                  style: "currency",
-                  currency: convert.to.currency,
-                  currencyDisplay: "code",
-                }}
-                locales="en-US"
               />
-            </p>
+              <span>{convert.to.currency}</span>
+            </div>
           {/if}
           <p class="text-xs text-muted-foreground">
             {#if offline}
               Try again when online.
             {:else}
-              Updated {convert.from.refreshDate &&
-                convert.from.refreshDate.toLocaleString("en-US")}
+              Updated
+              <Tooltip.Provider>
+                <Tooltip.Root>
+                  <Tooltip.Trigger class="underline">
+                    {relativeTime(convert.from.refreshDate!)}
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <p>
+                      {convert.from.refreshDate &&
+                        convert.from.refreshDate.toLocaleString("en-US")}
+                    </p>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </Tooltip.Provider>
             {/if}
           </p>
         {/if}

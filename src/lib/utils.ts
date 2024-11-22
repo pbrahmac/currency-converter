@@ -100,3 +100,58 @@ export function loadFromLocalStorage(
 
   return [localStorageFrom as Country, localStorageTo as Country];
 }
+
+// display a relative time
+export function relativeTime(date: Date) {
+  const differenceInMs = Math.abs(Date.now() - date.getTime());
+
+  let relativeTime = { number: 0, unit: "" };
+
+  const threshold = {
+    month: 11,
+    week: 3,
+    day: 6,
+    hour: 23,
+    minute: 59,
+    second: 59,
+  };
+
+  const difference = {
+    years: differenceInMs / (1000 * 60 * 60 * 24 * 7 * 4 * 12),
+    months: differenceInMs / (1000 * 60 * 60 * 24 * 7 * 4),
+    weeks: differenceInMs / (1000 * 60 * 60 * 24 * 7),
+    days: differenceInMs / (1000 * 60 * 60 * 24),
+    hours: differenceInMs / (1000 * 60 * 60),
+    minutes: differenceInMs / (1000 * 60),
+    seconds: differenceInMs / 1000,
+  };
+
+  if (difference.years > 0 && difference.months > threshold.month) {
+    relativeTime.number = difference.years;
+    relativeTime.unit = "year";
+  } else if (difference.months > 0 && difference.weeks > threshold.week) {
+    relativeTime.number = difference.months;
+    relativeTime.unit = "month";
+  } else if (difference.weeks > 0 && difference.days > threshold.day) {
+    relativeTime.number = difference.weeks;
+    relativeTime.unit = "week";
+  } else if (difference.days > 0 && difference.hours > threshold.hour) {
+    relativeTime.number = difference.days;
+    relativeTime.unit = "day";
+  } else if (difference.hours > 0 && difference.minutes > threshold.minute) {
+    relativeTime.number = difference.hours;
+    relativeTime.unit = "hour";
+  } else if (difference.minutes > 0 && difference.seconds > threshold.second) {
+    relativeTime.number = difference.minutes;
+    relativeTime.unit = "minute";
+  } else {
+    relativeTime.number = difference.seconds;
+    relativeTime.unit = "second";
+  }
+
+  if (relativeTime.number > 1) {
+    relativeTime.unit += "s";
+  }
+
+  return `${Math.round(relativeTime.number)} ${relativeTime.unit} ago`;
+}
