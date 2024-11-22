@@ -4,6 +4,7 @@
   import { Input } from "$lib/components/ui/input/index";
   import { Label } from "$lib/components/ui/label/index";
   import { Separator } from "$lib/components/ui/separator/index";
+  import { Switch } from "$lib/components/ui/switch/index";
   import { Skeleton } from "$lib/components/ui/skeleton/index";
   import {
     fetchConversionData,
@@ -22,6 +23,8 @@
   // loading state for data fetching
   let loading = $state(true);
   let offline = $state(false);
+  let customRateEnabled = $state(false);
+  let originalConversionRate = $state(1);
 
   // object to hold conversion data
   let convert: ConvertObj = $state({
@@ -88,6 +91,7 @@
         const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
         convert.from.conversionRate = firstToSecondRate.rate;
         convert.to.conversionRate = firstToSecondRate.inverseRate;
+        originalConversionRate = firstToSecondRate.rate;
         convert.from.refreshDate = new Date(firstToSecondRate.date);
         convert.to.fullName = firstToSecondRate.name;
         loading = false;
@@ -109,7 +113,16 @@
       convert.from.conversionRate = firstToSecondRate && firstToSecondRate.rate;
       convert.to.conversionRate =
         firstToSecondRate && firstToSecondRate.inverseRate;
+      originalConversionRate = firstToSecondRate && firstToSecondRate.rate;
       convert.to.fullName = firstToSecondRate && firstToSecondRate.name;
+    };
+  });
+  $effect(() => {
+    convert.from.conversionRate;
+    return () => {
+      convert.to.amount = (
+        parseFloat(convert.from.amount) * convert.from.conversionRate
+      ).toString();
     };
   });
   // load from localStorage on component mount
@@ -184,6 +197,28 @@
       Clear
     </Button>
     <Separator />
+    <div class="flex items-center justify-end w-full space-x-2">
+      <Switch
+        name="customRateSwitch"
+        bind:checked={customRateEnabled}
+        onCheckedChange={(checked) => {
+          console.log("changed");
+          if (!checked) {
+            convert.from.conversionRate = originalConversionRate;
+          }
+        }}
+      />
+      <Label for="customRateSwitch" class="font-normal text-nowrap">
+        Custom Rate
+      </Label>
+      <Input
+        bind:value={convert.from.conversionRate}
+        type="number"
+        inputmode="decimal"
+        pattern="[0-9]+"
+        disabled={!customRateEnabled}
+      />
+    </div>
     <div
       class="w-full border flex items-center justify-start space-x-4 px-3 py-2 rounded-md"
     >

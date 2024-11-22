@@ -43,15 +43,11 @@
 
   // full and filtered countries lists
   let countriesList: CountriesList = $state(
-    Object.entries(Countries)
-      .filter((country) =>
-        direction === "to" ? country[0] !== fromCode : true
-      )
-      .map((country) => ({
-        emoji: country[1],
-        code: country[0] as Country,
-        name: undefined,
-      }))
+    Object.entries(Countries).map((country) => ({
+      emoji: country[1],
+      code: country[0] as Country,
+      name: undefined,
+    }))
   );
   let filteredCountriesList = $state(countriesList);
 
@@ -74,6 +70,8 @@
   $effect(() => {
     // fetch rates data
     fetchConversionData("USD").then((refreshedRates) => {
+      // add back USD
+      countriesList.push({ emoji: "🇺🇸", code: "USD", name: "U.S. Dollar" });
       // filter out invalid countries in-place
       countriesList.splice(
         0,
