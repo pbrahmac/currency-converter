@@ -3,6 +3,7 @@
   import * as Card from "$lib/components/ui/card/index";
   import { Input } from "$lib/components/ui/input/index";
   import { Label } from "$lib/components/ui/label/index";
+  import * as Popover from "$lib/components/ui/popover/index";
   import { Separator } from "$lib/components/ui/separator/index";
   import { Skeleton } from "$lib/components/ui/skeleton/index";
   import * as Tooltip from "$lib/components/ui/tooltip/index";
@@ -19,8 +20,12 @@
   import NumberFlow from "@number-flow/svelte";
   import Swap from "lucide-svelte/icons/arrow-left-right";
   import Coins from "lucide-svelte/icons/coins";
-  import { onMount } from "svelte";
+  import type { MediaQuery } from "runed";
+  import { getContext, onMount } from "svelte";
   import CountryPicker from "./CountryPicker.svelte";
+
+  // get isDesktop state
+  const isDesktop: MediaQuery = getContext("isDesktop");
 
   // loading state for data fetching
   let loading = $state(true);
@@ -231,19 +236,35 @@
               Try again when online.
             {:else}
               Updated
-              <Tooltip.Provider>
-                <Tooltip.Root>
-                  <Tooltip.Trigger class="underline">
+              {#if isDesktop.matches}
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger class="underline">
+                      {relativeTime(convert.from.refreshDate!)}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content side="bottom">
+                      <p>
+                        {convert.from.refreshDate &&
+                          convert.from.refreshDate.toLocaleString("en-US")}
+                      </p>
+                    </Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+              {:else}
+                <Popover.Root>
+                  <Popover.Trigger class="underline">
                     {relativeTime(convert.from.refreshDate!)}
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>
-                    <p>
+                  </Popover.Trigger>
+                  <Popover.Content
+                    class="flex items-center justify-center w-fit bg-primary text-primary-foreground px-2 py-1.5"
+                  >
+                    <p class="text-xs">
                       {convert.from.refreshDate &&
                         convert.from.refreshDate.toLocaleString("en-US")}
                     </p>
-                  </Tooltip.Content>
-                </Tooltip.Root>
-              </Tooltip.Provider>
+                  </Popover.Content>
+                </Popover.Root>
+              {/if}
             {/if}
           </p>
         {/if}
