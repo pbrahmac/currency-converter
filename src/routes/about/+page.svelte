@@ -5,6 +5,8 @@
   import { buttonVariants } from "$lib/components/ui/button/index";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import { cn, loadFromLocalStorage, type Country } from "$lib/utils";
+  import { butterfly } from "@lucide/lab";
+  import { Icon } from "lucide-svelte";
   import GitHubLogo from "lucide-svelte/icons/github";
   import LinkedInLogo from "lucide-svelte/icons/linkedin";
   import ArrowRight from "lucide-svelte/icons/move-right";
@@ -101,6 +103,11 @@
         </div>
       </div>
       <div class="flex space-x-2">
+        <a
+          href="https://bsky.app/profile/parjanya.dev"
+          class={cn(buttonVariants({ variant: "outline" }), "size-12")}
+          ><Icon iconNode={butterfly} />
+        </a>
         <a
           href="https://github.com/pbrahmac"
           class={cn(buttonVariants({ variant: "outline" }), "size-12")}
