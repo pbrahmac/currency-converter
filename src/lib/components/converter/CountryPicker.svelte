@@ -29,11 +29,11 @@
   let {
     direction,
     currCode = $bindable(),
-    fromCode,
+    otherCode,
   }: {
     direction: "from" | "to";
     currCode: Country;
-    fromCode: Country;
+    otherCode: Country;
   } = $props();
 
   // media query
@@ -44,15 +44,11 @@
 
   // full and filtered countries lists
   let countriesList: CountriesList = $state(
-    Object.entries(Countries)
-      .filter((country) =>
-        direction === "to" ? country[0] !== fromCode : true
-      )
-      .map((country) => ({
-        emoji: country[1],
-        code: country[0] as Country,
-        name: undefined,
-      }))
+    Object.entries(Countries).map((country) => ({
+      emoji: country[1],
+      code: country[0] as Country,
+      name: undefined,
+    }))
   );
   let filteredCountriesList = $state(countriesList);
 
@@ -74,24 +70,19 @@
   // on component mount, fetch full country names for search
   $effect(() => {
     // fetch rates data
-    fetchConversionData("USD").then((refreshedRates) => {
-      // filter out invalid countries in-place
+    fetchConversionData(otherCode).then((refreshedRates) => {
+      // repopulate countries list with fetched data
       countriesList.splice(
         0,
         countriesList.length,
-        ...countriesList.filter(
-          (country) => refreshedRates[country.code.toLowerCase()] !== undefined
-        )
+        ...Object.values(refreshedRates)
+          .map((currency) => ({
+            emoji: getEmoji(currency.code),
+            code: currency.alphaCode as Country,
+            name: formatCountryName(currency.name),
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name))
       );
-      // add formatted name fields to each valid country
-      countriesList.forEach((country) => {
-        if (country.code === "USD") {
-          country.name = "U.S. Dollar";
-          return;
-        }
-        const name = refreshedRates[country.code.toLowerCase()].name;
-        country.name = formatCountryName(name);
-      });
     });
   });
 </script>

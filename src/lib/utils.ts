@@ -103,7 +103,7 @@ export function loadFromLocalStorage(
 
 // display a relative time
 export function relativeTime(date: Date) {
-  const differenceInMs = Math.abs(Date.now() - date.getTime());
+  const differenceInMs = Math.abs(Date.now() - (date && date.getTime()));
 
   let relativeTime = { number: 0, unit: "" };
 
@@ -149,9 +149,10 @@ export function relativeTime(date: Date) {
     relativeTime.unit = "second";
   }
 
+  relativeTime.number = Math.round(relativeTime.number);
   if (relativeTime.number > 1) {
     relativeTime.unit += "s";
   }
 
-  return `${Math.round(relativeTime.number)} ${relativeTime.unit} ago`;
+  return `${relativeTime.number} ${relativeTime.unit} ago`;
 }

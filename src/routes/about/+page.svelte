@@ -56,13 +56,13 @@
         <CountryPicker
           direction="from"
           bind:currCode={defaultConvertFrom}
-          fromCode={defaultConvertFrom}
+          otherCode={defaultConvertFrom}
         />
         <ArrowRight />
         <CountryPicker
           direction="to"
           bind:currCode={defaultConvertTo}
-          fromCode={defaultConvertFrom}
+          otherCode={defaultConvertFrom}
         />
       </div>
     </div>

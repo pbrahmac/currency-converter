@@ -149,7 +149,7 @@
         <CountryPicker
           bind:currCode={convert.from.currency}
           direction="from"
-          fromCode={convert.from.currency}
+          otherCode={convert.to.currency}
         />
       </Label>
       <Input
@@ -166,7 +166,7 @@
         <CountryPicker
           bind:currCode={convert.to.currency}
           direction="to"
-          fromCode={convert.from.currency}
+          otherCode={convert.from.currency}
         />
       </Label>
       <Input
@@ -207,8 +207,15 @@
               <NumberFlow
                 value={convert.from.conversionRate &&
                   parseFloat(formatRate(convert.from.conversionRate))}
+                format={{
+                  minimumFractionDigits: 4,
+                  maximumFractionDigits: 6,
+                  style: "decimal",
+                }}
               />
-              <span>{convert.to.currency}</span>
+              <span class="text-ellipsis overflow-hidden text-nowrap max-w-36">
+                {convert.to.fullName}
+              </span>
             </div>
           {/if}
           <p class="text-xs text-muted-foreground">
