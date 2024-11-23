@@ -89,10 +89,17 @@
       (refreshedRates) => {
         rates = refreshedRates;
         const firstToSecondRate = rates[convert.to.currency.toLowerCase()];
-        convert.from.conversionRate = firstToSecondRate.rate;
-        convert.to.conversionRate = firstToSecondRate.inverseRate;
-        convert.from.refreshDate = new Date(firstToSecondRate.date);
-        convert.to.fullName = firstToSecondRate.name;
+        convert.from.conversionRate =
+          firstToSecondRate && firstToSecondRate.rate;
+        convert.to.conversionRate =
+          firstToSecondRate && firstToSecondRate.inverseRate;
+        convert.from.refreshDate =
+          firstToSecondRate && new Date(firstToSecondRate.date);
+        convert.to.fullName = firstToSecondRate && firstToSecondRate.name;
+        window.localStorage.setItem(
+          "defaultConvertFrom",
+          convert.from.currency
+        );
         loading = false;
       },
       () => {
@@ -113,6 +120,7 @@
       convert.to.conversionRate =
         firstToSecondRate && firstToSecondRate.inverseRate;
       convert.to.fullName = firstToSecondRate && firstToSecondRate.name;
+      window.localStorage.setItem("defaultConvertTo", convert.to.currency);
     };
   });
   // load from localStorage on component mount
