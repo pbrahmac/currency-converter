@@ -35,9 +35,9 @@
       const newSW = registration.installing;
       newSW?.addEventListener("statechange", () => {
         if (newSW.state === "installed") {
-          toast("Back online.", {
+          toast("There's a new update!", {
             action: {
-              label: "Reload",
+              label: "Refresh App",
               onClick: () => {
                 newSW.postMessage({ type: "SKIP_WAITING" });
                 window.location.reload();
