@@ -15,6 +15,7 @@
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
   import { MediaQuery } from "runed";
+  import { getContext } from "svelte";
   import Skeleton from "../ui/skeleton/skeleton.svelte";
 
   // types
@@ -36,7 +37,7 @@
   } = $props();
 
   // media query
-  const isDesktop = new MediaQuery("(min-width: 768px)");
+  const isDesktop: MediaQuery = getContext("isDesktop");
 
   // state variables
   let open = $state(false);
@@ -95,6 +96,46 @@
   });
 </script>
 
+{#snippet countryPickerContent()}
+  <Input bind:value={searchValue} oninput={() => handleSearch()} />
+  <ul class="w-full" class:mt-4={!isDesktop.matches}>
+    <ScrollArea
+      class={cn(
+        "sm:h-96",
+        isDesktop.matches ? "h-[77svh] w-full" : "h-[40svh]"
+      )}
+    >
+      <div class="rounded-md border w-full">
+        {#each filteredCountriesList as country}
+          <button
+            class="flex w-full hover:bg-secondary items-center justify-between py-3 px-4 border-b last:border-b-0"
+            onclick={() => handleSelect(country.code)}
+          >
+            <li class="w-full">
+              <div class="flex items-baseline space-x-2">
+                <p>{country.emoji}</p>
+                <p>{country.code}</p>
+                {#if country.name === undefined}
+                  <Skeleton class="w-1/2 h-3" />
+                {:else}
+                  <span
+                    class="text-muted-foreground text-sm text-nowrap max-w-64 text-ellipsis overflow-hidden"
+                  >
+                    ({country.name})
+                  </span>
+                {/if}
+              </div>
+            </li>
+            {#if country.code === currCode}
+              <Check />
+            {/if}
+          </button>
+        {/each}
+      </div>
+    </ScrollArea>
+  </ul>
+{/snippet}
+
 {#if isDesktop.matches}
   <Dialog.Root bind:open>
     <Dialog.Trigger class={cn(buttonVariants({ variant: "outline" }), "pr-3")}>
@@ -110,38 +151,7 @@
           Select the currency code associated with your currency.
         </Dialog.Description>
       </Dialog.Header>
-      <Input bind:value={searchValue} oninput={() => handleSearch()} />
-      <ul class="w-full">
-        <ScrollArea class="sm:h-96 h-[77svh] w-full">
-          <div class="rounded-md border w-full">
-            {#each filteredCountriesList as country}
-              <button
-                class="flex w-full hover:bg-secondary items-center justify-between py-3 px-4 border-b last:border-b-0"
-                onclick={() => handleSelect(country.code)}
-              >
-                <li class="w-full">
-                  <div class="flex items-baseline space-x-2">
-                    <p>{country.emoji}</p>
-                    <p>{country.code}</p>
-                    {#if country.name === undefined}
-                      <Skeleton class="w-1/2 h-3" />
-                    {:else}
-                      <span
-                        class="text-muted-foreground text-sm text-nowrap max-w-64 text-ellipsis overflow-hidden"
-                      >
-                        ({country.name})
-                      </span>
-                    {/if}
-                  </div>
-                </li>
-                {#if country.code === currCode}
-                  <Check />
-                {/if}
-              </button>
-            {/each}
-          </div>
-        </ScrollArea>
-      </ul>
+      {@render countryPickerContent()}
     </Dialog.Content>
   </Dialog.Root>
 {:else}
@@ -159,40 +169,7 @@
           Select the currency code associated with your currency.
         </Drawer.Description>
       </Drawer.Header>
-      <Input
-        autofocus={false}
-        bind:value={searchValue}
-        oninput={() => handleSearch()}
-      />
-      <ul class="w-full mt-4">
-        <ScrollArea class="sm:h-96 h-[40svh] rounded-md border w-full">
-          {#each filteredCountriesList as country}
-            <button
-              class="flex w-full hover:bg-secondary items-center justify-between py-3 px-4 border-b last:border-b-0"
-              onclick={() => handleSelect(country.code)}
-            >
-              <li class="w-full">
-                <div class="flex items-baseline space-x-2">
-                  <p>{country.emoji}</p>
-                  <p>{country.code}</p>
-                  {#if country.name === undefined}
-                    <Skeleton class="w-1/2 h-3" />
-                  {:else}
-                    <span
-                      class="text-muted-foreground text-sm text-nowrap max-w-64 text-ellipsis overflow-hidden"
-                    >
-                      ({country.name})
-                    </span>
-                  {/if}
-                </div>
-              </li>
-              {#if country.code === currCode}
-                <Check />
-              {/if}
-            </button>
-          {/each}
-        </ScrollArea>
-      </ul>
+      {@render countryPickerContent()}
     </Drawer.Content>
   </Drawer.Root>
 {/if}

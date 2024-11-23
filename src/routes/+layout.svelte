@@ -3,12 +3,17 @@
   import Navbar from "$lib/components/Navbar.svelte";
   import { Toaster } from "$lib/components/ui/sonner/index";
   import { ModeWatcher, mode } from "mode-watcher";
-  import { onMount } from "svelte";
+  import { onMount, setContext } from "svelte";
   import { toast } from "svelte-sonner";
   import "../app.css";
+  import { MediaQuery } from "runed";
 
   // props
   let { children } = $props();
+
+  // media query
+  const isDesktop = $state(new MediaQuery("(min-width: 768px)"));
+  setContext("isDesktop", isDesktop);
 
   // view transition API
   onNavigate((navigation) => {
